@@ -452,6 +452,8 @@ async function carregarEquipe() {
           <td>${u.ativo ? '<span class="badge ok">Ativo</span>' : '<span class="badge exp">Desativado</span>'}</td>
           <td>
             <div class="linha-acoes">
+              <button class="btn btn-ghost btn-mini" data-editar="${u.id}"
+                      data-usuario="${escapar(u.usuario)}" data-nome="${escapar(u.nome)}">Editar</button>
               <button class="btn btn-ghost btn-mini" data-senha="${u.id}" data-usuario="${escapar(u.usuario)}">Trocar senha</button>
               ${souEu ? '' : `<button class="btn ${u.ativo ? 'btn-perigo' : 'btn-ghost'} btn-mini"
                     data-alternar="${u.id}" data-ativo="${u.ativo}" data-usuario="${escapar(u.usuario)}">
@@ -471,6 +473,20 @@ $('#corpo-equipe').addEventListener('click', async (evento) => {
   if (!botao) return;
 
   try {
+    if (botao.dataset.editar) {
+      const usuario = prompt('Usuário ou e-mail de acesso:', botao.dataset.usuario);
+      if (usuario === null) return;
+      const nome = prompt('Nome completo:', botao.dataset.nome);
+      if (nome === null) return;
+
+      await apiAdmin(`/api/admin/usuarios/${botao.dataset.editar}`, {
+        method: 'PUT',
+        body: { usuario, nome },
+      });
+      carregarEquipe();
+      return;
+    }
+
     if (botao.dataset.senha) {
       const senha = prompt(`Nova senha para "${botao.dataset.usuario}" (mín. 8 caracteres, com letras e números):`);
       if (!senha) return;

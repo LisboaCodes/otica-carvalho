@@ -123,7 +123,7 @@ Os backups contêm CPFs e os hashes das senhas dos administradores — guarde-os
 
 # 2. Link na bio (`bio/`)
 
-Página estática de um arquivo só, pronta para um subdomínio (ex.: `bio.oticacarvalho.com.br`).
+Página estática de um arquivo só, pronta para um subdomínio (`bio.oticacarvalho.com`).
 
 ```
 bio/

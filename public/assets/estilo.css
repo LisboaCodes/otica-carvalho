@@ -157,7 +157,10 @@ td .linha-acoes{display:flex;gap:6px;flex-wrap:wrap}
 .login-card h2{text-align:center;margin-bottom:4px}
 .login-card .sub{text-align:center}
 
-.rodape{text-align:center;font-size:.75rem;color:var(--ink-soft);padding:24px}
+.rodape{text-align:center;font-size:.75rem;color:var(--ink-soft);padding:24px;line-height:1.9}
+.creditos{font-size:.7rem;letter-spacing:1px}
+.creditos a{color:var(--lens-deep);text-decoration:none;border-bottom:1px solid rgba(6,126,131,.3)}
+.creditos a:hover{border-bottom-color:var(--lens)}
 .oculto{display:none !important}
 
 @media(max-width:640px){

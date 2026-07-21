@@ -131,6 +131,9 @@
   .assinatura{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:34px}
   .assinatura .risco{width:40px;height:1px;background:rgba(200,161,90,.4)}
   .assinatura .nome{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:15px;color:#8a9990}
+  .creditos{text-align:center;margin-top:12px;font-size:11px;letter-spacing:1.5px;color:#6d7d74}
+  .creditos a{color:#c8a15a;text-decoration:none;border-bottom:1px solid rgba(200,161,90,.3)}
+  .creditos a:hover{color:#e8c884;border-bottom-color:rgba(232,200,132,.6)}
 
   @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
   @keyframes shimmer{0%{background-position:-200% center}100%{background-position:200% center}}
@@ -247,7 +250,7 @@
       <span class="seta" aria-hidden="true">›</span>
     </a>
 
-    <a class="link" style="animation-delay:.45s" href="mailto:contato@oticacarvalho.com.br">
+    <a class="link" style="animation-delay:.45s" href="mailto:contato@oticacarvalho.com">
       <span class="icone" aria-hidden="true">✉️</span>
       <span class="corpo">
         <span class="titulo">E-mail</span>
@@ -294,10 +297,15 @@
     </div>
   </section>
 
-  <footer class="assinatura">
-    <span class="risco" aria-hidden="true"></span>
-    <span class="nome">Ótica Carvalho</span>
-    <span class="risco" aria-hidden="true"></span>
+  <footer>
+    <div class="assinatura">
+      <span class="risco" aria-hidden="true"></span>
+      <span class="nome">Ótica Carvalho</span>
+      <span class="risco" aria-hidden="true"></span>
+    </div>
+    <p class="creditos">
+      powered by <a href="https://creativenext.com.br/" target="_blank" rel="noopener">CreativeNext</a>
+    </p>
   </footer>
 </main>
 

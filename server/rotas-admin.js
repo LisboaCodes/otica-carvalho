@@ -282,6 +282,40 @@ rotasAdmin.post('/usuarios', async (req, res, proximo) => {
   }
 });
 
+/** Corrige usuario/nome de um admin — inclusive o proprio, sem perder a sessao. */
+rotasAdmin.put('/usuarios/:id', async (req, res, proximo) => {
+  try {
+    const validacaoUsuario = validarUsuario(req.body?.usuario);
+    if (!validacaoUsuario.ok) return res.status(400).json({ erro: validacaoUsuario.erro });
+
+    const nome = String(req.body?.nome ?? '').trim();
+    if (nome.length < 3) return res.status(400).json({ erro: 'Informe o nome do funcionario.' });
+
+    const { rows } = await consulta(
+      'UPDATE admins SET usuario = $1, nome = $2 WHERE id = $3 RETURNING id, usuario, nome, ativo',
+      [validacaoUsuario.usuario, nome, req.params.id]
+    );
+    if (!rows.length) return res.status(404).json({ erro: 'Admin nao encontrado.' });
+
+    // Renomeando a si mesmo, o cookie ainda carrega os dados antigos: reemite.
+    if (rows[0].id === req.admin.id) {
+      definirCookieSessao(res, criarToken(rows[0]));
+    }
+
+    await registrarLog({
+      adminId: req.admin.id,
+      adminNome: req.admin.nome,
+      acao: 'editou_admin',
+      detalhe: `#${rows[0].id} agora e ${rows[0].usuario}`,
+    });
+
+    res.json({ usuario: rows[0] });
+  } catch (erro) {
+    if (erro.code === '23505') return res.status(409).json({ erro: 'Ja existe um admin com esse usuario.' });
+    proximo(erro);
+  }
+});
+
 rotasAdmin.post('/usuarios/:id/senha', async (req, res, proximo) => {
   try {
     const erroSenha = validarSenha(req.body?.senha);
