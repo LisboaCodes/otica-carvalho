@@ -1,0 +1,59 @@
+# Stack completa para o Coolify: Postgres + aplicacao.
+#
+# As variaveis SERVICE_* sao "magic variables" do Coolify: ele gera os valores
+# no primeiro deploy e os mantem entre reinicios.
+#   SERVICE_FQDN_APP_3000  -> dominio publico + proxy para a porta 3000
+#   SERVICE_USER_POSTGRES  -> usuario do banco
+#   SERVICE_PASSWORD_POSTGRES -> senha do banco
+#   SERVICE_BASE64_64_SESSAO  -> segredo de assinatura do cookie de sessao
+#
+# Fora do Coolify (docker compose local) defina esses valores em um .env.
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: otica_garantias
+      POSTGRES_USER: ${SERVICE_USER_POSTGRES}
+      POSTGRES_PASSWORD: ${SERVICE_PASSWORD_POSTGRES}
+      # Acentos corretos em nomes de clientes.
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+    volumes:
+      - dados-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      - SERVICE_FQDN_APP_3000
+      - NODE_ENV=production
+      - PORT=3000
+      # Rede interna do Docker: sem TLS, o trafego nao sai do servidor.
+      - DATABASE_URL=postgres://${SERVICE_USER_POSTGRES}:${SERVICE_PASSWORD_POSTGRES}@postgres:5432/otica_garantias
+      - DATABASE_SSL=disable
+      - SESSION_SECRET=${SERVICE_BASE64_64_SESSAO}
+      # Primeiro administrador, criado apenas se a tabela estiver vazia.
+      - ADMIN_USUARIO=${ADMIN_USUARIO:-carvalho}
+      - ADMIN_NOME=${ADMIN_NOME:-Administrador}
+      - ADMIN_SENHA=${ADMIN_SENHA}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/saude').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 25s
+
+volumes:
+  dados-postgres:

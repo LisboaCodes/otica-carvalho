@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ótica Carvalho — Consultar Garantia</title>
+<meta name="description" content="Consulte a garantia dos seus óculos da Ótica Carvalho usando CPF e data de nascimento.">
+<link rel="stylesheet" href="/assets/estilo.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
+</head>
+<body>
+
+<header>
+  <div class="logo"></div>
+  <div>
+    <h1>Ótica Carvalho</h1>
+    <div class="tag">Garantia Digital &nbsp;•&nbsp; Consulta</div>
+  </div>
+</header>
+
+<main class="wrap estreito">
+  <section class="card">
+    <h2>Consultar minha garantia</h2>
+    <p class="sub">Informe seu CPF e sua data de nascimento para ver o certificado.</p>
+
+    <form id="form-consulta" novalidate>
+      <div class="grid">
+        <div>
+          <label for="cpf">CPF</label>
+          <input id="cpf" name="cpf" inputmode="numeric" autocomplete="off"
+                 placeholder="000.000.000-00" maxlength="14" required>
+        </div>
+        <div>
+          <label for="nascimento">Data de nascimento</label>
+          <input id="nascimento" name="nascimento" type="date" required>
+        </div>
+      </div>
+      <div class="acoes">
+        <button class="btn" type="submit" id="btn-buscar">Buscar garantia</button>
+        <button class="btn btn-ghost" type="button" id="btn-limpar">Limpar</button>
+      </div>
+      <p class="aviso" id="aviso" role="status" aria-live="polite"></p>
+    </form>
+
+    <p class="hint">
+      Os dois dados precisam bater com o cadastro feito na loja. Se não encontrar, procure a Ótica Carvalho.
+    </p>
+  </section>
+
+  <div id="resultado"></div>
+</main>
+
+<p class="rodape">Ótica Carvalho — Garantia Digital</p>
+
+<script type="module" src="/assets/consulta.js"></script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ótica Carvalho — Validação de Certificado</title>
+<link rel="stylesheet" href="/assets/estilo.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
+</head>
+<body>
+
+<header>
+  <div class="logo"></div>
+  <div>
+    <h1>Ótica Carvalho</h1>
+    <div class="tag">Validação por QR Code</div>
+  </div>
+</header>
+
+<main class="wrap estreito">
+  <div id="resultado">
+    <div class="card vazio">Validando certificado...</div>
+  </div>
+  <div class="acoes" style="justify-content:center">
+    <a class="btn btn-ghost" href="/">Consultar por CPF</a>
+  </div>
+</main>
+
+<p class="rodape">Ótica Carvalho — Garantia Digital</p>
+
+<script type="module">
+  import { api, renderizarCertificados } from '/assets/comum.js';
+
+  const resultado = document.getElementById('resultado');
+  const token = location.pathname.split('/').filter(Boolean).pop();
+
+  try {
+    const { garantias } = await api(`/api/garantia/${encodeURIComponent(token)}`);
+    renderizarCertificados(resultado, garantias);
+  } catch (erro) {
+    resultado.innerHTML = `<div class="card vazio">${erro.message}</div>`;
+  }
+</script>
+</body>
+</html>

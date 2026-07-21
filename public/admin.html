@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Ótica Carvalho — Painel Administrativo</title>
+<link rel="stylesheet" href="/assets/estilo.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
+</head>
+<body>
+
+<!-- ================================ LOGIN ================================= -->
+<div class="login-tela" id="tela-login">
+  <form class="login-card" id="form-login" novalidate>
+    <div class="logo"></div>
+    <h2>Painel Administrativo</h2>
+    <p class="sub">Ótica Carvalho — acesso restrito</p>
+
+    <div style="margin-bottom:14px">
+      <label for="login-usuario">Usuário</label>
+      <input id="login-usuario" autocomplete="username" autocapitalize="none" required>
+    </div>
+    <div>
+      <label for="login-senha">Senha</label>
+      <input id="login-senha" type="password" autocomplete="current-password" required>
+    </div>
+
+    <div class="acoes">
+      <button class="btn" type="submit" id="btn-entrar" style="width:100%">Entrar</button>
+    </div>
+    <p class="aviso" id="aviso-login" role="status" aria-live="polite"></p>
+    <p class="hint" style="text-align:center"><a href="/" style="color:var(--ink-soft)">← Consulta pública</a></p>
+  </form>
+</div>
+
+<!-- ================================ PAINEL ================================ -->
+<div id="tela-painel" class="oculto">
+  <header>
+    <div class="logo"></div>
+    <div>
+      <h1>Ótica Carvalho</h1>
+      <div class="tag">Painel Administrativo</div>
+    </div>
+    <div class="direita">
+      <span class="quem">Olá, <b id="quem-nome">—</b></span>
+      <button class="btn btn-ghost btn-mini" id="btn-sair">Sair</button>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="tabs">
+      <button class="tab active" data-aba="garantias">Garantias</button>
+      <button class="tab" data-aba="cadastro">Nova garantia</button>
+      <button class="tab" data-aba="backup">Backup</button>
+      <button class="tab" data-aba="equipe">Equipe</button>
+      <button class="tab" data-aba="atividade">Atividade</button>
+    </div>
+
+    <!-- ---------------------------- GARANTIAS ---------------------------- -->
+    <section class="panel active" id="aba-garantias">
+      <div class="kpis" id="kpis"></div>
+
+      <div class="card">
+        <h2>Garantias cadastradas</h2>
+        <p class="sub">Busque por nome ou CPF, edite ou remova registros.</p>
+
+        <div class="grid">
+          <div>
+            <label for="busca">Buscar</label>
+            <input id="busca" placeholder="Nome do cliente ou CPF" autocomplete="off">
+          </div>
+          <div>
+            <label for="filtro-situacao">Situação</label>
+            <select id="filtro-situacao">
+              <option value="todas">Todas</option>
+              <option value="ativas">Somente ativas</option>
+              <option value="expiradas">Somente expiradas</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="tabela-scroll" style="margin-top:18px">
+          <table>
+            <thead>
+              <tr>
+                <th>Cliente</th><th>CPF</th><th>Produto</th>
+                <th>Válida até</th><th>Situação</th><th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="corpo-tabela"></tbody>
+          </table>
+        </div>
+
+        <div class="paginacao" id="paginacao"></div>
+      </div>
+
+      <div id="cert-visualizacao"></div>
+    </section>
+
+    <!-- ---------------------------- CADASTRO ----------------------------- -->
+    <section class="panel" id="aba-cadastro">
+      <div class="card">
+        <h2 id="titulo-form">Cadastrar garantia</h2>
+        <p class="sub">O QR Code do certificado é gerado automaticamente ao salvar.</p>
+
+        <form id="form-garantia" novalidate>
+          <input type="hidden" id="g-id">
+          <div class="grid">
+            <div class="full">
+              <label for="g-nome">Nome do cliente *</label>
+              <input id="g-nome" placeholder="Ex.: Maria Silva Santos" maxlength="120" required>
+            </div>
+            <div>
+              <label for="g-cpf">CPF *</label>
+              <input id="g-cpf" inputmode="numeric" placeholder="000.000.000-00" maxlength="14" required>
+            </div>
+            <div>
+              <label for="g-nascimento">Data de nascimento *</label>
+              <input id="g-nascimento" type="date" required>
+            </div>
+            <div>
+              <label for="g-consulta">Data da consulta</label>
+              <input id="g-consulta" type="date">
+            </div>
+            <div>
+              <label for="g-validade">Garantia válida até *</label>
+              <input id="g-validade" type="date" required>
+            </div>
+            <div class="full">
+              <label for="g-produto">Produto</label>
+              <input id="g-produto" placeholder="Ex.: Armação Ray-Ban + lentes antirreflexo" maxlength="200">
+            </div>
+            <div class="full">
+              <label for="g-observacoes">Observações</label>
+              <textarea id="g-observacoes" placeholder="Grau, tratamento, condições especiais..." maxlength="500"></textarea>
+            </div>
+          </div>
+
+          <div class="acoes">
+            <button class="btn" type="submit" id="btn-salvar">Gerar garantia</button>
+            <button class="btn btn-ghost" type="button" id="btn-cancelar-edicao">Limpar</button>
+            <button class="btn btn-ghost btn-mini" type="button" id="btn-validade-1a">+1 ano</button>
+            <button class="btn btn-ghost btn-mini" type="button" id="btn-validade-2a">+2 anos</button>
+          </div>
+          <p class="aviso" id="aviso-garantia" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+
+      <div id="cert-novo"></div>
+    </section>
+
+    <!-- ------------------------------ BACKUP ----------------------------- -->
+    <section class="panel" id="aba-backup">
+      <div class="card">
+        <h2>Backup local</h2>
+        <p class="sub">Baixe uma cópia completa do banco para o seu computador. Use o SQL para migrar o banco para qualquer outro Postgres.</p>
+
+        <div class="acoes">
+          <button class="btn" id="btn-backup-sql">Baixar SQL completo</button>
+          <button class="btn btn-ghost" id="btn-backup-json">Baixar JSON</button>
+          <button class="btn btn-ghost" id="btn-backup-csv">Baixar CSV (Excel)</button>
+        </div>
+
+        <p class="hint">
+          <b>SQL</b> — schema + dados, restaura em qualquer Postgres com
+          <code>psql "CONNECTION_STRING" -f arquivo.sql</code>.<br>
+          <b>JSON</b> — formato usado pela restauração abaixo.<br>
+          <b>CSV</b> — só as garantias, para abrir no Excel.
+        </p>
+      </div>
+
+      <div class="card">
+        <h2>Restaurar backup JSON</h2>
+        <p class="sub">Importa garantias de um arquivo gerado por este sistema.</p>
+
+        <div class="grid">
+          <div>
+            <label for="arquivo-backup">Arquivo .json</label>
+            <input type="file" id="arquivo-backup" accept="application/json,.json">
+          </div>
+          <div>
+            <label for="modo-restauracao">Modo</label>
+            <select id="modo-restauracao">
+              <option value="mesclar">Mesclar (mantém o que já existe)</option>
+              <option value="substituir">Substituir (apaga as garantias atuais)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="acoes">
+          <button class="btn" id="btn-restaurar" disabled>Restaurar</button>
+        </div>
+        <p class="aviso" id="aviso-backup" role="status" aria-live="polite"></p>
+        <p class="hint">Os administradores nunca são sobrescritos pela restauração — seu acesso continua o mesmo.</p>
+      </div>
+    </section>
+
+    <!-- ------------------------------ EQUIPE ----------------------------- -->
+    <section class="panel" id="aba-equipe">
+      <div class="card">
+        <h2>Administradores</h2>
+        <p class="sub">Quem pode acessar este painel.</p>
+        <div class="tabela-scroll">
+          <table>
+            <thead>
+              <tr><th>Usuário</th><th>Nome</th><th>Último acesso</th><th>Situação</th><th>Ações</th></tr>
+            </thead>
+            <tbody id="corpo-equipe"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Novo administrador</h2>
+        <p class="sub">Senha com no mínimo 8 caracteres, contendo letras e números.</p>
+        <form id="form-admin" novalidate>
+          <div class="grid-3">
+            <div>
+              <label for="a-usuario">Usuário</label>
+              <input id="a-usuario" autocapitalize="none" placeholder="ex.: joana" required>
+            </div>
+            <div>
+              <label for="a-nome">Nome completo</label>
+              <input id="a-nome" placeholder="Joana Ribeiro" required>
+            </div>
+            <div>
+              <label for="a-senha">Senha</label>
+              <input id="a-senha" type="password" autocomplete="new-password" required>
+            </div>
+          </div>
+          <div class="acoes">
+            <button class="btn" type="submit">Criar acesso</button>
+          </div>
+          <p class="aviso" id="aviso-admin" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+    </section>
+
+    <!-- ----------------------------- ATIVIDADE --------------------------- -->
+    <section class="panel" id="aba-atividade">
+      <div class="card">
+        <h2>Atividade recente</h2>
+        <p class="sub">Últimas 60 ações registradas no sistema.</p>
+        <div class="tabela-scroll">
+          <table>
+            <thead><tr><th>Quando</th><th>Quem</th><th>Ação</th><th>Detalhe</th></tr></thead>
+            <tbody id="corpo-logs"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <p class="rodape">Ótica Carvalho — Garantia Digital</p>
+</div>
+
+<!-- ============================== CONFIRMACAO ============================= -->
+<div class="modal-fundo" id="modal-confirmar">
+  <div class="modal">
+    <h3 id="modal-titulo">Confirmar</h3>
+    <p class="sub" id="modal-texto"></p>
+    <div class="acoes">
+      <button class="btn btn-perigo" id="modal-ok">Confirmar</button>
+      <button class="btn btn-ghost" id="modal-cancelar">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="/assets/admin.js"></script>
+</body>
+</html>

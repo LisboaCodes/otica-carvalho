@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Garantia Ótica — Protótipo</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  :root{
+    --ink:#12303a;        /* verde-petróleo escuro */
+    --ink-soft:#3a5560;
+    --paper:#f5f1e8;      /* creme óptico */
+    --lens:#0aa2a2;       /* ciano-lente */
+    --lens-deep:#067e83;
+    --amber:#e0a83e;      /* âmbar tratamento */
+    --line:#d8d0bf;
+    --danger:#b4442f;
+    --ok:#1f7a53;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:"Segoe UI",system-ui,sans-serif;
+    background:
+      radial-gradient(circle at 15% 10%, rgba(10,162,162,.10), transparent 40%),
+      radial-gradient(circle at 90% 85%, rgba(224,168,62,.10), transparent 45%),
+      var(--paper);
+    color:var(--ink);
+    min-height:100vh;
+    line-height:1.5;
+  }
+  header{
+    padding:28px 24px 20px;
+    border-bottom:1px solid var(--line);
+    display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  }
+  .logo{
+    width:44px;height:44px;border-radius:50%;
+    border:3px solid var(--lens);
+    position:relative;flex-shrink:0;
+  }
+  .logo::after{
+    content:"";position:absolute;inset:7px;border-radius:50%;
+    border:2px solid var(--amber);
+  }
+  header h1{font-size:1.35rem;letter-spacing:.5px}
+  header .tag{font-size:.78rem;color:var(--ink-soft);letter-spacing:2px;text-transform:uppercase}
+  .wrap{max-width:960px;margin:0 auto;padding:24px}
+  .tabs{display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap}
+  .tab{
+    padding:10px 18px;border:1px solid var(--line);background:#fff;
+    border-radius:999px;cursor:pointer;font-size:.9rem;font-weight:600;color:var(--ink-soft);
+    transition:.15s;
+  }
+  .tab.active{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  .panel{display:none;animation:fade .25s ease}
+  .panel.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .card{
+    background:#fff;border:1px solid var(--line);border-radius:16px;
+    padding:26px;box-shadow:0 8px 24px rgba(18,48,58,.05);
+  }
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  label{display:block;font-size:.8rem;font-weight:600;color:var(--ink-soft);margin-bottom:6px}
+  input,select{
+    width:100%;padding:11px 13px;border:1px solid var(--line);border-radius:10px;
+    font-size:.95rem;font-family:inherit;background:var(--paper);color:var(--ink);
+  }
+  input:focus,select:focus{outline:2px solid var(--lens);border-color:var(--lens);background:#fff}
+  .full{grid-column:1/-1}
+  .btn{
+    background:var(--lens);color:#fff;border:none;padding:13px 22px;border-radius:10px;
+    font-weight:700;font-size:.95rem;cursor:pointer;transition:.15s;
+  }
+  .btn:hover{background:var(--lens-deep)}
+  .btn-ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+  .btn-ghost:hover{background:var(--paper)}
+  h2{font-size:1.1rem;margin-bottom:4px}
+  .sub{font-size:.85rem;color:var(--ink-soft);margin-bottom:22px}
+  /* certificado */
+  .cert{
+    background:linear-gradient(160deg,#12303a,#0d2028);color:var(--paper);
+    border-radius:16px;padding:26px;position:relative;overflow:hidden;
+  }
+  .cert::before{
+    content:"";position:absolute;right:-40px;top:-40px;width:160px;height:160px;
+    border:2px solid rgba(10,162,162,.35);border-radius:50%;
+  }
+  .cert::after{
+    content:"";position:absolute;right:-10px;top:-10px;width:100px;height:100px;
+    border:2px solid rgba(224,168,62,.3);border-radius:50%;
+  }
+  .cert .eyebrow{font-size:.72rem;letter-spacing:3px;text-transform:uppercase;color:var(--lens);margin-bottom:14px}
+  .cert-row{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+  .cert-fields{flex:1;min-width:220px}
+  .cert dl{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;margin-top:10px;font-size:.9rem}
+  .cert dt{color:var(--lens);font-weight:600}
+  .cert dd{text-align:right}
+  .qr-box{background:#fff;padding:14px;border-radius:12px;display:flex;flex-direction:column;align-items:center;gap:8px}
+  .qr-box small{color:var(--ink);font-size:.68rem;letter-spacing:1px}
+  .status{display:inline-block;padding:4px 12px;border-radius:999px;font-size:.75rem;font-weight:700;margin-top:14px}
+  .status.ok{background:rgba(31,122,83,.2);color:#7fe3b0}
+  .status.exp{background:rgba(180,68,47,.25);color:#f5a58f}
+  .result-empty{text-align:center;color:var(--ink-soft);padding:40px 20px}
+  .list-item{
+    display:flex;justify-content:space-between;align-items:center;gap:12px;
+    padding:14px 0;border-bottom:1px solid var(--line);font-size:.9rem;
+  }
+  .list-item:last-child{border-bottom:none}
+  .badge{font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:999px}
+  .badge.ok{background:rgba(31,122,83,.12);color:var(--ok)}
+  .badge.exp{background:rgba(180,68,47,.12);color:var(--danger)}
+  .hint{font-size:.78rem;color:var(--ink-soft);margin-top:10px}
+  @media(max-width:600px){.grid{grid-template-columns:1fr}.cert-row{flex-direction:column}.cert dd{text-align:left}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo"></div>
+  <div>
+    <h1>Ótica Visão — Garantia Digital</h1>
+    <div class="tag">Certificado &nbsp;•&nbsp; QR Code &nbsp;•&nbsp; Consulta</div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="tabs">
+    <div class="tab active" data-t="cadastro">Novo cadastro</div>
+    <div class="tab" data-t="consulta">Consultar garantia</div>
+    <div class="tab" data-t="lista">Todas as garantias</div>
+  </div>
+
+  <!-- CADASTRO -->
+  <div class="panel active" id="cadastro">
+    <div class="card">
+      <h2>Cadastrar garantia</h2>
+      <p class="sub">Preencha os dados. O QR Code é gerado automaticamente ao salvar.</p>
+      <div class="grid">
+        <div><label>Nome do cliente</label><input id="f-nome" placeholder="Ex: Maria Silva"></div>
+        <div><label>Idade</label><input id="f-idade" type="number" min="0" placeholder="Ex: 34"></div>
+        <div><label>CPF</label><input id="f-cpf" placeholder="Somente números"></div>
+        <div><label>Dia da consulta</label><input id="f-consulta" type="date"></div>
+        <div><label>Produto</label><input id="f-produto" placeholder="Ex: Armação + lentes"></div>
+        <div><label>Garantia válida até</label><input id="f-validade" type="date"></div>
+      </div>
+      <div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn" onclick="salvar()">Gerar garantia</button>
+        <button class="btn btn-ghost" onclick="limpar()">Limpar</button>
+      </div>
+      <p class="hint" id="msg"></p>
+    </div>
+    <div id="cert-area" style="margin-top:20px"></div>
+  </div>
+
+  <!-- CONSULTA -->
+  <div class="panel" id="consulta">
+    <div class="card">
+      <h2>Consultar minha garantia</h2>
+      <p class="sub">O cliente digita o CPF e vê o certificado.</p>
+      <div class="grid">
+        <div class="full"><label>CPF</label><input id="c-cpf" placeholder="Digite o CPF"></div>
+      </div>
+      <div style="margin-top:16px">
+        <button class="btn" onclick="consultar()">Buscar</button>
+      </div>
+      <p class="hint">Teste: <b>12345678</b> ou <b>87654321</b></p>
+    </div>
+    <div id="consulta-res" style="margin-top:20px"></div>
+  </div>
+
+  <!-- LISTA -->
+  <div class="panel" id="lista">
+    <div class="card">
+      <h2>Garantias emitidas</h2>
+      <p class="sub">Visão do lojista.</p>
+      <div id="lista-items"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // "banco de dados" em memória
+  let DB = [
+    {nome:"Maria Silva", idade:34, cpf:"12345678", consulta:"2026-07-10", produto:"Armação Ray-Ban + lentes antirreflexo", validade:"2027-07-10"},
+    {nome:"João Pereira", idade:52, cpf:"87654321", consulta:"2025-02-05", produto:"Lentes multifocais", validade:"2026-02-05"}
+  ];
+
+  // navegação
+  document.querySelectorAll('.tab').forEach(t=>{
+    t.onclick=()=>{
+      document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+      t.classList.add('active');
+      document.getElementById(t.dataset.t).classList.add('active');
+      if(t.dataset.t==='lista') renderLista();
+    };
+  });
+
+  const fmt = d => d ? d.split('-').reverse().join('/') : '—';
+  const vigente = v => new Date(v) >= new Date(new Date().toDateString());
+
+  function certHTML(r){
+    const ativa = vigente(r.validade);
+    return `<div class="cert">
+      <div class="eyebrow">Certificado de Garantia</div>
+      <div class="cert-row">
+        <div class="cert-fields">
+          <div style="font-size:1.3rem;font-weight:700">${r.nome}</div>
+          <span class="status ${ativa?'ok':'exp'}">${ativa?'Garantia ativa':'Garantia expirada'}</span>
+          <dl>
+            <dt>Idade</dt><dd>${r.idade} anos</dd>
+            <dt>CPF</dt><dd>${r.cpf}</dd>
+            <dt>Produto</dt><dd>${r.produto||'—'}</dd>
+            <dt>Consulta</dt><dd>${fmt(r.consulta)}</dd>
+            <dt>Válida até</dt><dd>${fmt(r.validade)}</dd>
+          </dl>
+        </div>
+        <div class="qr-box">
+          <div id="qr-${r.cpf}"></div>
+          <small>ESCANEIE PARA VALIDAR</small>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  function drawQR(r){
+    const el = document.getElementById('qr-'+r.cpf);
+    if(!el) return;
+    el.innerHTML='';
+    const payload = `GARANTIA|${r.nome}|CPF:${r.cpf}|Consulta:${r.consulta}|Ate:${r.validade}`;
+    new QRCode(el,{text:payload,width:120,height:120,colorDark:"#12303a",colorLight:"#ffffff"});
+  }
+
+  function salvar(){
+    const r = {
+      nome:val('f-nome'), idade:val('f-idade'), cpf:val('f-cpf').replace(/\D/g,''),
+      consulta:val('f-consulta'), produto:val('f-produto'), validade:val('f-validade')
+    };
+    const msg = document.getElementById('msg');
+    if(!r.nome||!r.cpf||!r.validade){msg.style.color='var(--danger)';msg.textContent='Preencha ao menos nome, CPF e validade.';return;}
+    const i = DB.findIndex(x=>x.cpf===r.cpf);
+    if(i>=0) DB[i]=r; else DB.push(r);
+    msg.style.color='var(--ok)';msg.textContent='Garantia salva com sucesso.';
+    document.getElementById('cert-area').innerHTML = certHTML(r);
+    drawQR(r);
+  }
+
+  function consultar(){
+    const cpf = val('c-cpf').replace(/\D/g,'');
+    const r = DB.find(x=>x.cpf===cpf);
+    const box = document.getElementById('consulta-res');
+    if(!r){box.innerHTML='<div class="card result-empty">Nenhuma garantia encontrada para este CPF.</div>';return;}
+    box.innerHTML = certHTML(r);
+    drawQR(r);
+  }
+
+  function renderLista(){
+    const box = document.getElementById('lista-items');
+    if(!DB.length){box.innerHTML='<div class="result-empty">Nenhuma garantia cadastrada.</div>';return;}
+    box.innerHTML = DB.map(r=>{
+      const ativa = vigente(r.validade);
+      return `<div class="list-item">
+        <div><b>${r.nome}</b><br><span style="color:var(--ink-soft);font-size:.8rem">CPF ${r.cpf} • até ${fmt(r.validade)}</span></div>
+        <span class="badge ${ativa?'ok':'exp'}">${ativa?'Ativa':'Expirada'}</span>
+      </div>`;
+    }).join('');
+  }
+
+  function limpar(){['f-nome','f-idade','f-cpf','f-consulta','f-produto','f-validade'].forEach(id=>document.getElementById(id).value='');document.getElementById('msg').textContent='';document.getElementById('cert-area').innerHTML='';}
+  const val = id => document.getElementById(id).value.trim();
+</script>
+</body>
+</html>
