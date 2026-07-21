@@ -28,6 +28,25 @@ export function formatarCPF(valor) {
   return `${cpf.slice(0, 3)}.${cpf.slice(3, 6)}.${cpf.slice(6, 9)}-${cpf.slice(9)}`;
 }
 
+/**
+ * Aceita login curto (joana, ana.paula) ou e-mail completo como usuario.
+ * Retorna { ok: true, usuario } normalizado em minusculas, ou { ok: false, erro }.
+ */
+export function validarUsuario(valor) {
+  const usuario = String(valor ?? '').trim().toLowerCase();
+
+  if (usuario.length < 3) return { ok: false, erro: 'Usuario muito curto (minimo 3 caracteres).' };
+  if (usuario.length > 80) return { ok: false, erro: 'Usuario muito longo (maximo 80 caracteres).' };
+
+  const login = /^[a-z0-9._-]+$/;
+  const email = /^[a-z0-9._%+-]+@[a-z0-9-]+(\.[a-z0-9-]+)+$/;
+
+  if (!login.test(usuario) && !email.test(usuario)) {
+    return { ok: false, erro: 'Use um login simples (letras, numeros, . _ -) ou um e-mail valido.' };
+  }
+  return { ok: true, usuario };
+}
+
 const DATA_ISO = /^\d{4}-\d{2}-\d{2}$/;
 
 /** Aceita apenas "YYYY-MM-DD" que corresponda a uma data real do calendario. */

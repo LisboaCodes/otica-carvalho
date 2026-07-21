@@ -3,6 +3,7 @@
 
 import { consulta, inicializarBanco, pool } from '../server/db.js';
 import { gerarHash, validarSenha } from '../server/auth.js';
+import { validarUsuario } from '../server/validacao.js';
 
 const [usuarioBruto, nome, senha] = process.argv.slice(2);
 
@@ -12,12 +13,12 @@ if (!usuarioBruto || !nome || !senha) {
   process.exit(1);
 }
 
-const usuario = usuarioBruto.trim().toLowerCase();
-
-if (!/^[a-z0-9._-]{3,30}$/.test(usuario)) {
-  console.error('Usuario deve ter 3 a 30 caracteres: letras, numeros, ponto, hifen ou underline.');
+const validacaoUsuario = validarUsuario(usuarioBruto);
+if (!validacaoUsuario.ok) {
+  console.error(validacaoUsuario.erro);
   process.exit(1);
 }
+const usuario = validacaoUsuario.usuario;
 
 const erroSenha = validarSenha(senha);
 if (erroSenha) {

@@ -11,7 +11,7 @@ import {
   validarSenha,
 } from './auth.js';
 import { criarLimitador, liberar } from './limitador.js';
-import { formatarCPF, garantiaVigente, idadeEmAnos, limparCPF, validarGarantia } from './validacao.js';
+import { formatarCPF, garantiaVigente, idadeEmAnos, limparCPF, validarGarantia, validarUsuario } from './validacao.js';
 
 export const rotasAdmin = Router();
 
@@ -251,13 +251,13 @@ rotasAdmin.get('/usuarios', async (_req, res, proximo) => {
 
 rotasAdmin.post('/usuarios', async (req, res, proximo) => {
   try {
-    const usuario = String(req.body?.usuario ?? '').trim().toLowerCase();
+    const validacaoUsuario = validarUsuario(req.body?.usuario);
+    if (!validacaoUsuario.ok) return res.status(400).json({ erro: validacaoUsuario.erro });
+
+    const usuario = validacaoUsuario.usuario;
     const nome = String(req.body?.nome ?? '').trim();
     const senha = String(req.body?.senha ?? '');
 
-    if (!/^[a-z0-9._-]{3,30}$/.test(usuario)) {
-      return res.status(400).json({ erro: 'Usuario deve ter 3 a 30 caracteres (letras, numeros, . _ -).' });
-    }
     if (nome.length < 3) return res.status(400).json({ erro: 'Informe o nome do funcionario.' });
 
     const erroSenha = validarSenha(senha);
