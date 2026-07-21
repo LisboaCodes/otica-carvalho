@@ -138,12 +138,27 @@ Para editar links, endereço ou horário, abra o `index.html` e mexa direto no H
 
 ---
 
-# Domínios
+# Domínios e deploy
 
-| Endereço                          | Aponta para                                  |
-| --------------------------------- | -------------------------------------------- |
-| `https://oticacarvalho.com`       | Site principal / loja (fora deste repositório) |
-| `https://garantia.oticacarvalho.com` | Aplicação de Garantia Digital (`app` no compose) |
-| subdomínio da bio                 | Pasta `bio/` como Static Site                |
+Tudo roda no Coolify em `201.23.76.139`, dentro do projeto **OTICA-CARVALHO**:
 
-No Coolify, defina `garantia.oticacarvalho.com` como domínio do serviço `app` e ative o certificado Let's Encrypt. O DNS precisa de um registro `A` de `garantia` apontando para `201.23.76.139`.
+| Endereço                             | Recurso no Coolify           | Origem no repositório |
+| ------------------------------------ | ---------------------------- | --------------------- |
+| `https://oticacarvalho.com`          | — (Shopify, fora daqui)      | —                     |
+| `https://garantia.oticacarvalho.com` | app `garantia-digital` (Docker Compose) | `docker-compose.yml` |
+| `https://bio.oticacarvalho.com`      | app `bio` (Static)           | pasta `bio/`          |
+
+## DNS
+
+O domínio usa os nameservers do **GoDaddy** (`ns31/ns32.domaincontrol.com`). Os dois subdomínios precisam de um registro `A` apontando para o servidor:
+
+| Tipo | Nome       | Valor            |
+| ---- | ---------- | ---------------- |
+| A    | `garantia` | `201.23.76.139`  |
+| A    | `bio`      | `201.23.76.139`  |
+
+Enquanto o DNS não propagar, o Let's Encrypt não consegue emitir o certificado — e, sem HTTPS, o login do painel não se mantém (o cookie de sessão é `Secure` em produção).
+
+## Deploy automático
+
+Os dois recursos apontam para a branch `main` deste repositório. Um `git push` seguido de *Redeploy* no Coolify publica a alteração; para publicar automaticamente a cada push, ative o webhook do GitHub no recurso.
